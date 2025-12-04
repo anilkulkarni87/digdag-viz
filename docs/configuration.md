@@ -1,6 +1,6 @@
 # Configuration Guide
 
-This guide covers all configuration options for the Digdag Workflow Visualizer.
+This guide covers all configuration options for Digdag Viz.
 
 ## Configuration Priority
 
@@ -62,7 +62,7 @@ export GRAPH_FORMAT=png
 export GRAPH_DIRECTION=TB
 export EXCLUDE_PATTERNS="**/test_*.dig,**/.archive/**"
 
-digdag-graph ./workflows
+digdag-viz ./workflows
 ```
 
 ## CLI Arguments
@@ -70,7 +70,7 @@ digdag-graph ./workflows
 All options can be specified via command-line arguments:
 
 ```bash
-digdag-graph ./workflows \
+digdag-viz ./workflows \
   --outdir docs/graphs \
   --format png \
   --direction TB \
@@ -189,7 +189,7 @@ cp templates/index.html.j2 custom-templates/
 
 3. Use custom templates:
 ```bash
-digdag-graph ./workflows --template-dir custom-templates
+digdag-viz ./workflows --template-dir custom-templates
 ```
 
 Or in configuration:
@@ -225,7 +225,7 @@ For repositories with many workflows:
 3. Use `--quiet` mode for less output
 
 ```bash
-digdag-graph ./workflows \
+digdag-viz ./workflows \
   --max-depth 5 \
   --exclude "**/test_*.dig" \
   --quiet
@@ -240,7 +240,11 @@ For very large workflows:
 3. Use PNG instead of SVG for smaller files
 
 ```bash
-digdag-graph ./workflows \
+digdag-viz ./workflows \
   --format png \
   --max-depth 3
 ```
+
+
+## Configuration Priority
+

@@ -36,6 +36,9 @@ jobs:
           exclude-patterns: '**/test_*.dig,**/.archive/**'
           verbose: 'true'
       
+      # Uncomment the following steps to deploy to GitHub Pages
+      # First, enable GitHub Pages in Settings → Pages → Source: GitHub Actions
+      
       - name: Setup Pages
         uses: actions/configure-pages@v4
         

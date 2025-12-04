@@ -191,6 +191,13 @@ Then simply run:
 python digdag-viz ./workflows
 ```
 
+## Documentation
+
+For detailed guides, see:
+
+- **[Configuration Guide](docs/configuration.md)** - Complete configuration options, environment variables, and examples
+- **[GitHub Actions Integration](docs/github-actions.md)** - Step-by-step guide for CI/CD integration with examples
+
 ## Supported Digdag Operators
 
 ✅ **Fully Supported:**
