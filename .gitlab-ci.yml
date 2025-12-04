@@ -1,0 +1,86 @@
+stages:
+  - visualize
+  - deploy
+
+variables:
+  WORKFLOW_PATH: "."
+  OUTPUT_DIR: "graphs"
+  GRAPH_FORMAT: "svg"
+  GRAPH_DIRECTION: "LR"
+
+# Main visualization job
+visualize-workflows:
+  stage: visualize
+  image: 
+    name: python:3.11-slim
+  
+  before_script:
+    - apt-get update && apt-get install -y graphviz
+    - pip install .
+  
+  script:
+    - digdag-viz $WORKFLOW_PATH 
+        --outdir $OUTPUT_DIR 
+        --format $GRAPH_FORMAT
+        --direction $GRAPH_DIRECTION
+        --exclude "**/test_*.dig" 
+        --exclude "**/.archive/**"
+        --verbose
+
+  
+  artifacts:
+    paths:
+      - $OUTPUT_DIR/
+    expire_in: 30 days
+  
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - "**/*.dig"
+        - "**/*.yml"
+        - "src/**"
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      changes:
+        - "**/*.dig"
+        - "**/*.yml"
+        - "src/**"
+
+# Deploy to GitLab Pages
+pages:
+  stage: deploy
+  dependencies:
+    - visualize-workflows
+  
+  script:
+    - mkdir -p public
+    - cp -r $OUTPUT_DIR/* public/
+    - echo "Workflow visualizations deployed to GitLab Pages"
+  
+  artifacts:
+    paths:
+      - public
+  
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+# Optional: Commit graphs back to repository
+commit-graphs:
+  stage: deploy
+  image: alpine/git:latest
+  dependencies:
+    - visualize-workflows
+  
+  before_script:
+    - git config user.email "gitlab-ci@gitlab.com"
+    - git config user.name "GitLab CI"
+  
+  script:
+    - git add $OUTPUT_DIR/
+    - git diff --staged --quiet || git commit -m "docs: update workflow visualizations [skip ci]"
+    - git push https://oauth2:${CI_JOB_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git HEAD:${CI_COMMIT_REF_NAME}
+  
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $AUTO_COMMIT_GRAPHS == "true"'
+      changes:
+        - "**/*.dig"
+        - "**/*.yml"

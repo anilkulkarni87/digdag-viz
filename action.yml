@@ -1,0 +1,83 @@
+name: 'Digdag Viz'
+description: 'Generate interactive visualizations for Treasure Data Digdag workflows'
+author: 'Treasure Data'
+
+branding:
+  icon: 'git-branch'
+  color: 'blue'
+
+inputs:
+  workflow-path:
+    description: 'Path to .dig files or directory'
+    required: true
+    default: '.'
+  
+  output-dir:
+    description: 'Output directory for generated graphs'
+    required: false
+    default: 'docs/graphs'
+  
+  graph-format:
+    description: 'Output format (svg, png, pdf)'
+    required: false
+    default: 'svg'
+  
+  graph-direction:
+    description: 'Graph direction (LR, TB, RL, BT)'
+    required: false
+    default: 'LR'
+  
+  exclude-patterns:
+    description: 'Comma-separated exclude patterns'
+    required: false
+    default: ''
+  
+  include-patterns:
+    description: 'Comma-separated include patterns'
+    required: false
+    default: ''
+  
+  config-file:
+    description: 'Path to configuration file'
+    required: false
+    default: ''
+  
+  no-schedule:
+    description: 'Skip schedule page generation'
+    required: false
+    default: 'false'
+  
+  max-depth:
+    description: 'Maximum task nesting depth'
+    required: false
+    default: ''
+  
+  verbose:
+    description: 'Enable verbose output'
+    required: false
+    default: 'false'
+
+outputs:
+  graphs-generated:
+    description: 'Number of graphs generated'
+  
+  output-path:
+    description: 'Path to generated output'
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  env:
+    OUTPUT_DIR: ${{ inputs.output-dir }}
+    GRAPH_FORMAT: ${{ inputs.graph-format }}
+    GRAPH_DIRECTION: ${{ inputs.graph-direction }}
+    EXCLUDE_PATTERNS: ${{ inputs.exclude-patterns }}
+    INCLUDE_PATTERNS: ${{ inputs.include-patterns }}
+  args:
+    - ${{ inputs.workflow-path }}
+    - --outdir
+    - ${{ inputs.output-dir }}
+    - --format
+    - ${{ inputs.graph-format }}
+    - --direction
+    - ${{ inputs.graph-direction }}

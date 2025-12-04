@@ -1,0 +1,49 @@
+name: Generate Workflow Visualizations
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - '**/*.dig'
+      - '**/*.yml'
+      - 'src/**'
+  pull_request:
+    paths:
+      - '**/*.dig'
+      - '**/*.yml'
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  visualize:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Generate workflow graphs
+        uses: ./
+        with:
+          workflow-path: '.'
+          output-dir: 'graphs'
+          graph-format: 'svg'
+          exclude-patterns: '**/test_*.dig,**/.archive/**'
+          verbose: 'true'
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+        
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'graphs'
+          
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

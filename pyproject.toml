@@ -1,0 +1,69 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "digdag-viz"
+version = "2.0.0"
+description = "Generate interactive visualizations for Treasure Data Digdag workflows"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "Treasure Data", email = "support@treasuredata.com"}
+]
+keywords = ["digdag", "workflow", "visualization", "treasure-data", "graph", "dag"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Documentation",
+    "Topic :: System :: Monitoring",
+]
+
+dependencies = [
+    "pyyaml>=5.3.1",
+    "graphviz>=0.19.1",
+    "jinja2>=3.0.0",
+    "cron-descriptor>=1.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/treasure-data/digdag-graph"
+Documentation = "https://github.com/treasure-data/digdag-graph/wiki"
+Repository = "https://github.com/treasure-data/digdag-graph"
+Issues = "https://github.com/treasure-data/digdag-graph/issues"
+
+[project.scripts]
+digdag-viz = "digdaggraph.cli:main"
+digdag-graph = "digdaggraph.cli:main"
+
+
+[tool.setuptools]
+packages = ["digdaggraph"]
+package-dir = {"" = "src"}
+
+[tool.setuptools.package-data]
+digdaggraph = ["templates/*.j2"]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"

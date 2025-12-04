@@ -1,0 +1,21 @@
+# Example Workflow: Daily Data Processing
+
+_schedule:
+  cron: "0 2 * * *"
+  timezone: UTC
+
++extract_data:
+  td>: queries/extract.sql
+  database: example_db
+  create_table: raw_data
+
++transform_data:
+  td>: queries/transform.sql
+  database: example_db
+  create_table: processed_data
+
++load_to_warehouse:
+  sh>: scripts/load.sh
+
++send_notification:
+  echo>: "Daily processing complete!"

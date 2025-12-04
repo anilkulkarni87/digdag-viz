@@ -1,0 +1,30 @@
+# Digdag Graph Configuration
+# Usage: digdag-graph ./workflows --config .digdag-graph.yml
+
+output:
+  # Output directory for generated graphs
+  directory: graphs
+  # Graph output format (svg, png, pdf)
+  format: svg
+
+graph:
+  # Graph direction (LR, TB, RL, BT)
+  direction: LR
+  # Maximum nesting depth for tasks (null for unlimited)
+  max_depth: null
+  # Include schedule information in graph title
+  include_schedule: true
+
+filters:
+  # Patterns to exclude from graph generation
+  exclude_patterns:
+    - "**/test_*.dig"
+    - "**/.archive/**"
+    - "**/_*"
+  
+  # Patterns to include (if empty, all files are included)
+  include_only: []
+
+output_pages:
+  # Custom template directory (optional)
+  template_dir: null
