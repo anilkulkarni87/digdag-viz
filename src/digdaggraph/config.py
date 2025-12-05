@@ -23,6 +23,11 @@ class Config:
         'exclude_patterns': [],
         'include_patterns': [],
         'template_dir': None,
+        'layer_patterns': [
+            {'name': 'source', 'label': 'Source Tables', 'color': '#FFE6CC', 'patterns': ['src_']},
+            {'name': 'staging', 'label': 'Staging Tables', 'color': '#DAE8FC', 'patterns': ['_stg', 'staging']},
+            {'name': 'golden', 'label': 'Golden Tables', 'color': '#D5E8D4', 'patterns': ['rr_gldn', 'gldn', 'golden']},
+        ],
     }
     
     # Environment variable mappings
@@ -81,6 +86,9 @@ class Config:
             if 'filters' in file_config:
                 self.config['exclude_patterns'] = file_config['filters'].get('exclude_patterns', self.config['exclude_patterns'])
                 self.config['include_patterns'] = file_config['filters'].get('include_only', self.config['include_patterns'])
+            
+            if 'lineage' in file_config and 'layers' in file_config['lineage']:
+                self.config['layer_patterns'] = file_config['lineage']['layers']
             
             if 'output_pages' in file_config:
                 template_dir = file_config['output_pages'].get('template_dir')

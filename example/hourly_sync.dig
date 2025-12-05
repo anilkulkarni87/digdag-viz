@@ -1,0 +1,19 @@
+# Hourly Data Sync - High Frequency
+# Demonstrates: hourly schedule, simple pipeline
+
+_schedule:
+  cron: "0 * * * *"
+  timezone: UTC
+
++sync_clickstream:
+  td>: queries/sync_clickstream.sql
+  database: analytics
+  create_table: src_raw.clickstream_events
+
++update_staging:
+  td>: queries/update_staging_clickstream.sql
+  database: analytics
+  insert_into: staging.clickstream_aggregated
+
++log_completion:
+  echo>: "Hourly sync completed for ${session_time}"

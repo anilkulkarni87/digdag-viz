@@ -366,12 +366,16 @@ DEFAULT_INDEX_TEMPLATE = """<!doctype html>
     {% if scheduled_workflows %}
     <div class="quick-links">
       <a href="scheduled_workflows.html" class="quick-link">
-        <h4>Scheduled Workflows</h4>
+        <h4>📅 Scheduled Workflows</h4>
         <p>View all workflows with schedules</p>
       </a>
       <a href="unscheduled_workflows.html" class="quick-link">
-        <h4>Unscheduled Workflows</h4>
+        <h4>📋 Unscheduled Workflows</h4>
         <p>View workflows without schedules</p>
+      </a>
+      <a href="lineage.html" class="quick-link">
+        <h4>🔗 Data Lineage</h4>
+        <p>Explore table dependencies and data flow</p>
       </a>
     </div>
     {% endif %}
@@ -642,6 +646,8 @@ class TemplateManager:
                 return self.env.from_string(DEFAULT_INDEX_TEMPLATE)
             elif name == 'unscheduled.html.j2':
                 return self.env.from_string(DEFAULT_UNSCHEDULED_TEMPLATE)
+            elif name == 'lineage.html.j2':
+                return self.env.from_string(DEFAULT_LINEAGE_TEMPLATE)
             else:
                 raise ConfigurationError(f"Template not found: {name}")
     
@@ -690,3 +696,252 @@ class TemplateManager:
         html = template.render(workflows=unscheduled, projects=projects)
         output_path.write_text(html, encoding='utf-8')
         logger.info(f"Generated unscheduled workflows page: {output_path}")
+    
+    def render_lineage_page(self, lineage_data: List[Dict[str, Any]], output_path: Path):
+        """Render data lineage page.
+        
+        Args:
+            lineage_data: List of table lineage information
+            output_path: Output file path
+        """
+        template = self.get_template('lineage.html.j2')
+        
+        # Extract unique databases for filter dropdown
+        databases = sorted(set(
+            table['database'] for table in lineage_data 
+            if table.get('database')
+        ))
+        
+        html = template.render(tables=lineage_data, databases=databases)
+        output_path.write_text(html, encoding='utf-8')
+        logger.info(f"Generated lineage page: {output_path}")
+
+
+# Default embedded template for lineage page
+DEFAULT_LINEAGE_TEMPLATE = """<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Data Lineage - Digdag Graph</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1a365d;
+      --primary-light: #2c5282;
+      --accent: #3182ce;
+      --gray-50: #f7fafc;
+      --gray-100: #edf2f7;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e0;
+      --gray-600: #4a5568;
+      --gray-800: #1a202c;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #ffffff; color: var(--gray-800); font-size: 14px; line-height: 1.5;
+      min-height: 100vh; display: flex; flex-direction: column;
+    }
+    header { 
+      padding: 0 32px; height: 64px; background: var(--primary);
+      border-bottom: 1px solid #0f2744; display: flex;
+      align-items: center; justify-content: space-between;
+      box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000;
+    }
+    .brand { 
+      font-weight: 600; font-size: 18px; color: white;
+      text-decoration: none; display: flex; align-items: center; gap: 12px;
+    }
+    .brand-icon {
+      width: 32px; height: 32px; background: var(--accent);
+      border-radius: 6px; display: flex; align-items: center;
+      justify-content: center; font-weight: 700; font-size: 16px;
+    }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-links a { 
+      color: rgba(255, 255, 255, 0.9); text-decoration: none; 
+      font-size: 14px; font-weight: 500; padding: 8px 16px;
+      border-radius: 6px; transition: all 0.2s ease;
+    }
+    .nav-links a:hover { background: var(--primary-light); color: white; }
+    .nav-links a.active { background: var(--accent); color: white; }
+    
+    main { flex: 1; padding: 32px; max-width: 1400px; width: 100%; margin: 0 auto; }
+    h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; color: var(--gray-800); }
+    .subtitle { color: var(--gray-600); margin-bottom: 24px; }
+    
+    .controls { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+    input[type="search"], select {
+      background: white; color: var(--gray-800); border: 1px solid var(--gray-200);
+      border-radius: 6px; padding: 10px 14px; outline: none; font-family: 'Inter', sans-serif;
+      font-size: 14px; transition: all 0.2s;
+    }
+    input[type="search"] { flex: 1; min-width: 250px; }
+    input[type="search"]:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1); }
+    input[type="search"]::placeholder { color: var(--gray-600); }
+    select { padding-right: 32px; }
+    
+    table { width: 100%; border-collapse: separate; border-spacing: 0; 
+      border: 1px solid var(--gray-200); border-radius: 8px;
+      background: white; box-shadow: var(--shadow);
+    }
+    thead th { 
+      background: var(--gray-50); border-bottom: 1px solid var(--gray-200);
+      text-align: left; padding: 14px 16px; font-weight: 600; font-size: 13px;
+      color: var(--gray-800); position: sticky; top: 64px; z-index: 1;
+    }
+    tbody tr { background: white; transition: background 0.15s; }
+    tbody tr:nth-child(even) { background: var(--gray-50); }
+    tbody tr:hover { background: var(--gray-100); }
+    tbody td { padding: 14px 16px; border-bottom: 1px solid var(--gray-200); vertical-align: top; }
+    tbody tr:last-child td { border-bottom: none; }
+    
+    code { 
+      background: var(--gray-100); padding: 3px 8px; border-radius: 4px;
+      font-family: 'SF Mono', Monaco, monospace; font-size: 13px;
+      color: var(--gray-800); display: inline-block;
+    }
+    
+    .badge {
+      display: inline-block; padding: 4px 10px; border-radius: 12px;
+      font-size: 12px; font-weight: 500;
+    }
+    .badge-source { background: #FED7AA; color: #7C2D12; }
+    .badge-staging { background: #BFDBFE; color: #1E3A8A; }
+    .badge-golden { background: #BBF7D0; color: #14532D; }
+    .badge-other { background: var(--gray-200); color: var(--gray-800); }
+    
+    a.view-btn {
+      display: inline-block; padding: 6px 14px; background: var(--accent);
+      color: white; text-decoration: none; border-radius: 6px;
+      font-size: 13px; font-weight: 500; transition: all 0.2s;
+    }
+    a.view-btn:hover { background: var(--primary-light); }
+    
+    .empty-state {
+      text-align: center; padding: 64px 32px; color: var(--gray-600);
+    }
+    .empty-state svg {
+      width: 64px; height: 64px; margin-bottom: 16px; opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="brand">
+    <div class="brand-icon">DG</div>
+    <span>Digdag Graph</span>
+  </a>
+  <nav class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="index.html">Workflows</a>
+    <a href="schedule.html">Scheduled</a>
+    <a href="unscheduled.html">Unscheduled</a>
+    <a href="lineage.html" class="active">Lineage</a>
+  </nav>
+</header>
+
+<main>
+  <h1>📊 Data Lineage</h1>
+  <p class="subtitle">Trace table dependencies across workflows</p>
+
+  <div class="controls">
+    <input type="search" id="search" placeholder="Search tables...">
+    <select id="database-filter">
+      <option value="">All Databases</option>
+      {% for db in databases %}
+      <option value="{{ db }}">{{ db }}</option>
+      {% endfor %}
+    </select>
+    <a href="lineage/full_lineage.html" class="view-btn" style="margin-left: auto;">🌐 View Full Lineage Graph</a>
+  </div>
+
+  {% if tables %}
+  <table id="lineage-table">
+    <thead>
+      <tr>
+        <th>Table</th>
+        <th>Database</th>
+        <th>Upstream</th>
+        <th>Downstream</th>
+        <th>Workflows</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for table in tables %}
+      <tr data-database="{{ table.database or '' }}">
+        <td><code>{{ table.name }}</code></td>
+        <td>
+          {% if table.database %}
+            {% if table.layer %}
+              <span class="badge" style="background-color: {{ table.layer.color }}; color: #333; border: 1px solid #ccc;">{{ table.database }}</span>
+            {% else %}
+              <span class="badge badge-other">{{ table.database }}</span>
+            {% endif %}
+          {% else %}
+            <span class="badge badge-other">-</span>
+          {% endif %}
+        </td>
+        <td>{{ table.upstream_count or 0 }}</td>
+        <td>{{ table.downstream_count or 0 }}</td>
+        <td>{{ table.workflow_count or 0 }}</td>
+        <td>
+          {% if table.graph_path %}
+          <a href="{{ table.graph_path }}" class="view-btn" target="_blank">View Graph</a>
+          {% else %}
+          <span style="color: var(--gray-600); font-size: 13px;">No graph</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+    </svg>
+    <p>No lineage data available</p>
+    <p style="font-size: 13px; margin-top: 8px;">Run with --lineage-all to generate lineage data</p>
+  </div>
+  {% endif %}
+</main>
+
+<script>
+(function() {
+  const q = document.getElementById('search');
+  const dbFilter = document.getElementById('database-filter');
+  const table = document.getElementById('lineage-table');
+  
+  function apply() {
+    if (!table) return;
+    
+    const query = q.value.toLowerCase();
+    const db = dbFilter.value.toLowerCase();
+    const rows = table.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      const rowDb = row.dataset.database.toLowerCase();
+      const matchesQuery = !query || text.includes(query);
+      const matchesDb = !db || rowDb.includes(db);
+      row.style.display = (matchesQuery && matchesDb) ? '' : 'none';
+    });
+  }
+
+  if (q && dbFilter) {
+    q.addEventListener('input', apply);
+    dbFilter.addEventListener('change', apply);
+  }
+})();
+</script>
+
+</body>
+</html>
+"""

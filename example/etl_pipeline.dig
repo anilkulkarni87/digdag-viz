@@ -1,0 +1,37 @@
+# ETL Pipeline - Scheduled Daily
+# Demonstrates: scheduled workflow, data lineage, multiple operators
+
+_schedule:
+  cron: "0 2 * * *"
+  timezone: America/Los_Angeles
+
++extract_source_data:
+  td>: queries/extract_events.sql
+  database: analytics
+  create_table: src_raw.events
+
++extract_users:
+  td>: queries/extract_users.sql
+  database: analytics
+  create_table: src_raw.users
+
++stage_events:
+  td>: queries/stage_events.sql
+  database: analytics
+  create_table: staging.events_cleaned
+
++stage_users:
+  td>: queries/stage_users.sql
+  database: analytics  
+  create_table: staging.users_enriched
+
++create_golden_table:
+  td>: queries/create_user_activity.sql
+  database: analytics
+  create_table: golden.user_activity_daily
+
++export_to_s3:
+  sh>: scripts/export_data.sh
+
++send_success_notification:
+  echo>: "ETL pipeline completed successfully at ${session_time}"
