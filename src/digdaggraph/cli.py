@@ -386,6 +386,9 @@ def main(argv=None):
         schedules: List[Dict[str, str]] = []
         workflows: List[Dict[str, Any]] = []
         
+        # Initialize template manager
+        template_mgr = TemplateManager(template_dir=config['template_dir'])
+        
         # Determine if input_path is a single project or a workspace
         # If input_path contains any .dig files directly, it's a single project.
         is_single_project = False
@@ -407,8 +410,8 @@ def main(argv=None):
                 else:
                     current_project_root = file_path.parent
 
-                # Build interactive graph with imagemap
-                svg_file, html_file = build_interactive_graph(
+                # Build interactive graph data
+                svg_filename, svg_content, task_defs = build_interactive_graph(
                     doc,
                     file_path,
                     output_dir,
@@ -418,6 +421,15 @@ def main(argv=None):
                 )
                 
                 wf_name = find_workflow_name(doc, file_path)
+                
+                # Render interactive HTML
+                html_filename = f"{file_path.stem}.html"
+                template_mgr.render_interactive_graph(
+                    wf_name=wf_name,
+                    svg_content=svg_content,
+                    task_defs=task_defs,
+                    output_path=output_dir / html_filename
+                )
                 cron, tz = schedule_info(doc)
                 
                 # Collect workflow info
@@ -439,7 +451,8 @@ def main(argv=None):
                     'file': rel_path,
                     'schedule': cron,
                     'timezone': tz,
-                    'graph': html_file,  # Link to interactive HTML, not just SVG
+                    'timezone': tz,
+                    'graph': html_filename,  # Link to interactive HTML
                     'project': project_name  # Add project name for filtering
                 })
                 
@@ -450,7 +463,9 @@ def main(argv=None):
                         'schedule': cron,
                         'timezone': tz or '',
                         'path': rel_path,
-                        'svg': html_file,  # Link to interactive HTML
+                        'timezone': tz or '',
+                        'path': rel_path,
+                        'svg': html_filename,  # Link to interactive HTML
                         'project': file_path.parent.name  # Add project name for filtering
                     })
                 
@@ -461,7 +476,6 @@ def main(argv=None):
                 continue
         
         # Generate HTML pages
-        template_mgr = TemplateManager(template_dir=config['template_dir'])
         
         # Generate index page
         template_mgr.render_index_page(workflows, output_dir / "index.html")

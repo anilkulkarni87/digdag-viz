@@ -133,9 +133,11 @@ dmypy.json
 .pyre/
 graphs/
 docs/graphs/
-wiki/
+
 linkedin_post.md
 projects/*
 tpci_td/*
 spike_lineage.py
 test_lineage.py
+wiki/*
+example-output/*
