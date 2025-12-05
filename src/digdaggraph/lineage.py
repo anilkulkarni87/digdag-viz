@@ -760,21 +760,56 @@ class LineageGraph:
       --gray-50: #f7fafc;
       --gray-100: #edf2f7;
       --gray-200: #e2e8f0;
+      --gray-300: #cbd5e0;
       --gray-600: #4a5568;
       --gray-800: #1a202c;
       --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+      /* Light Mode Colors */
+      --bg-body: #ffffff;
+      --bg-main: #f7fafc;
+      --bg-card: #ffffff;
+      --bg-sidebar: #ffffff;
+      --bg-header: #1a365d;
+      --text-main: #1a202c;
+      --text-muted: #4a5568;
+      --border-color: #e2e8f0;
+      --shadow-color: rgba(0, 0, 0, 0.1);
     }}
+
+    /* Dark Mode Colors */
+    [data-theme="dark"] {{
+      --bg-body: #171923;
+      --bg-main: #1a202c;
+      --bg-card: #2d3748;
+      --bg-sidebar: #2d3748;
+      --bg-header: #2d3748;
+      --text-main: #f7fafc;
+      --text-muted: #a0aec0;
+      --border-color: #4a5568;
+      --shadow-color: rgba(0, 0, 0, 0.4);
+      --gray-50: #2d3748;
+      --gray-100: #4a5568;
+      --gray-200: #4a5568;
+      --gray-600: #a0aec0;
+      --gray-800: #f7fafc;
+      --primary: #90cdf4; /* Lighter blue for dark mode */
+      --accent: #63b3ed;
+    }}
+
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     body {{
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #ffffff; color: var(--gray-800); font-size: 14px; line-height: 1.5;
+      background: var(--bg-body); color: var(--text-main); font-size: 14px; line-height: 1.5;
       min-height: 100vh; display: flex; flex-direction: column;
+      transition: background 0.3s ease, color 0.3s ease;
     }}
     header {{
-      padding: 0 32px; height: 64px; background: var(--primary);
-      border-bottom: 1px solid #0f2744; display: flex;
+      padding: 0 32px; height: 64px; background: var(--bg-header);
+      border-bottom: 1px solid rgba(0,0,0,0.1); display: flex;
       align-items: center; justify-content: space-between;
-      box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000;
+      box-shadow: 0 2px 4px var(--shadow-color); position: sticky; top: 0; z-index: 1000;
+      transition: background 0.3s ease;
     }}
     header h1 {{
       font-size: 18px; font-weight: 600; color: white; margin: 0;
@@ -785,19 +820,28 @@ class LineageGraph:
       font-size: 14px; font-weight: 500; padding: 8px 16px;
       border-radius: 6px; transition: all 0.2s ease;
     }}
-    .nav-links a:hover {{ background: var(--primary-light); color: white; }}
+    .nav-links a:hover {{ background: rgba(255,255,255,0.1); color: white; }}
     .nav-links a.active {{ background: var(--accent); color: white; }}
     
-    main {{ flex: 1; padding: 32px; max-width: 100%; margin: 0 auto; overflow: auto; }}
+    .header-controls {{ display: flex; align-items: center; gap: 16px; }}
+    .theme-toggle {{
+      background: rgba(255,255,255,0.1); border: none; cursor: pointer;
+      color: white; padding: 8px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }}
+    .theme-toggle:hover {{ background: rgba(255,255,255,0.2); }}
+
+    main {{ flex: 1; padding: 32px; max-width: 100%; margin: 0 auto; overflow: auto; background: var(--bg-body); transition: background 0.3s ease; }}
     
     .info-bar {{
-      background: var(--gray-50); border: 1px solid var(--gray-200);
+      background: var(--bg-card); border: 1px solid var(--border-color);
       border-radius: 8px; padding: 16px; margin-bottom: 24px;
       display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: 16px;
+      flex-wrap: wrap; gap: 16px; box-shadow: 0 2px 4px var(--shadow-color);
     }}
     .info-bar h1 {{
-      font-size: 20px; font-weight: 600; color: var(--gray-800);
+      font-size: 20px; font-weight: 600; color: var(--text-main);
       margin: 0;
     }}
     .info-bar .controls {{
@@ -811,13 +855,13 @@ class LineageGraph:
     }}
     .btn:hover {{ background: var(--primary-light); }}
     .btn-secondary {{
-      background: white; color: var(--gray-800);
-      border: 1px solid var(--gray-200);
+      background: var(--bg-card); color: var(--text-main);
+      border: 1px solid var(--border-color);
     }}
     .btn-secondary:hover {{ background: var(--gray-50); }}
     
     .graph-container {{
-      background: white; border: 1px solid var(--gray-200);
+      background: var(--bg-card); border: 1px solid var(--border-color);
       border-radius: 8px; padding: 24px; box-shadow: var(--shadow);
       overflow: auto; min-height: 500px;
     }}
@@ -826,37 +870,99 @@ class LineageGraph:
     }}
     
     .legend {{
-      background: var(--gray-50); border: 1px solid var(--gray-200);
+      background: var(--bg-card); border: 1px solid var(--border-color);
       border-radius: 8px; padding: 16px; margin-top: 24px;
     }}
     .legend h3 {{
-      font-size: 14px; font-weight: 600; margin-bottom: 12px;
+      font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--text-main);
     }}
     .legend-items {{
-      display: flex; gap: 24px; flex-wrap: wrap;
+      display: flex; gap: 24px; flex-wrap: wrap; color: var(--text-main);
     }}
     .legend-item {{
       display: flex; align-items: center; gap: 8px;
     }}
     .legend-color {{
       width: 20px; height: 20px; border-radius: 4px;
-      border: 1px solid var(--gray-300);
+      border: 1px solid var(--border-color);
+    }}
+    
+    /* Dropdown CSS */
+    .dropdown {{
+      position: relative; display: inline-block;
+    }}
+    .dropdown-content {{
+      display: none; position: absolute; background-color: var(--bg-card);
+      min-width: 120px; box-shadow: 0px 8px 16px 0px var(--shadow-color);
+      z-index: 10000; border-radius: 6px; overflow: visible;
+      top: 100%; left: 0; margin-top: 10px; border: 1px solid var(--border-color);
+    }}
+    /* Invisible bridge to prevent hover loss */
+    .dropdown-content::before {{
+      content: ""; position: absolute;
+      top: -10px; left: 0; width: 100%; height: 10px;
+      background: transparent;
+    }}
+    .dropdown-content a {{
+      color: var(--text-main); padding: 12px 16px; text-decoration: none;
+      display: block; font-size: 13px;
+    }}
+    .dropdown-content a:hover {{ background-color: var(--gray-50); }}
+    .dropdown:hover .dropdown-content {{ display: block; }}
+    
+    /* Focus Mode CSS */
+    .btn.active {{
+      background: var(--accent); color: white;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }}
+    g.node.dimmed, g.edge.dimmed {{
+      opacity: 0.1 !important; transition: opacity 0.3s;
+    }}
+    g.node.focused, g.edge.focused {{
+      opacity: 1 !important; transition: opacity 0.3s;
+    }}
+    
+    /* SVG Dark Mode Styles */
+    [data-theme="dark"] svg text {{
+      fill: #f7fafc !important;
+    }}
+    [data-theme="dark"] .graph-container {{
+      background: #2d3748;
+    }}
+    [data-theme="dark"] .legend {{
+      background: #2d3748; color: #f7fafc;
     }}
   </style>
 </head>
 <body>
 <header>
   <h1>🔗 Digdag Data Lineage</h1>
-  <nav class="nav-links">
-    <a href="{nav_home}">🏠 Home</a>
-    <a href="{nav_schedule}">📅 Scheduled</a>
-    <a href="{nav_lineage}" class="active">🔗 Lineage</a>
-  </nav>
+  
+  <div class="header-controls">
+    <nav class="nav-links">
+      <a href="{nav_home}">🏠 Home</a>
+      <a href="{nav_schedule}">📅 Scheduled</a>
+      <a href="{nav_lineage}" class="active">🔗 Lineage</a>
+    </nav>
+    <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+      </svg>
+    </button>
+  </div>
 </header>
 <main>
   <div class="info-bar">
     <h1>{'📊 ' + table_name if table_name else '🌐 Full Data Lineage'}</h1>
     <div class="controls">
+      <button class="btn btn-secondary" onclick="toggleFocusMode()" id="focusBtn">🎯 Focus Mode: OFF</button>
+      <div class="dropdown">
+        <button class="btn btn-secondary">📸 Export</button>
+        <div class="dropdown-content">
+          <a href="#" onclick="exportSVG()">SVG</a>
+          <a href="#" onclick="exportPNG()">PNG</a>
+        </div>
+      </div>
       <button class="btn btn-secondary" onclick="zoomIn()">Zoom In</button>
       <button class="btn btn-secondary" onclick="zoomOut()">Zoom Out</button>
       <button class="btn btn-secondary" onclick="resetZoom()">Reset</button>
@@ -885,161 +991,304 @@ class LineageGraph:
     </div>
   </div>
 </main>
+"""
 
+        html_content += """
 <script>
 let scale = 1;
-const graph = document.getElementById('graph');
-const svg = graph.querySelector('svg');
+let graph, svg;
+let focusMode = false;
+const graphData = {};
 
-function zoomIn() {{
+document.addEventListener('DOMContentLoaded', function() {
+  graph = document.getElementById('graph');
+  if (graph) {
+    svg = graph.querySelector('svg');
+    if (svg) {
+      initGraphInteractions();
+    } else {
+      console.error('SVG element not found in graph container');
+    }
+  } else {
+    console.error('Graph container not found');
+  }
+  
+  // Dark Mode Logic
+  const themeToggle = document.getElementById('themeToggle');
+  const storedTheme = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  
+  if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+  
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+    });
+  }
+});
+
+function initGraphInteractions() {
+  // Build graph data structure for highlighting
+  svg.querySelectorAll('g.edge').forEach(edge => {
+    const title = edge.querySelector('title');
+    if (title) {
+      const [source, target] = title.textContent.split('->').map(s => s.trim());
+      if (!graphData[source]) graphData[source] = { upstream: [], downstream: [] };
+      if (!graphData[target]) graphData[target] = { upstream: [], downstream: [] };
+      graphData[source].downstream.push(target);
+      graphData[target].upstream.push(source);
+    }
+  });
+
+  // Make SVG clickable tables navigate
+  svg.querySelectorAll('g.node').forEach(node => {
+    node.style.cursor = 'pointer';
+    
+    // Click to navigate or focus
+    node.addEventListener('click', function(e) {
+      const title = this.querySelector('title');
+      if (title) {
+        const tableName = title.textContent;
+        
+        if (focusMode) {
+          focusNode(tableName);
+        } else {
+          const safeName = tableName.replace(/\\./g, '_');
+          const htmlPath = `${safeName}.html`;
+          window.location.href = htmlPath;
+        }
+      }
+    });
+    
+    // Hover to highlight dependencies (only if not in focus mode)
+    node.addEventListener('mouseenter', function(e) {
+      if (focusMode) return;
+      
+      const title = this.querySelector('title');
+      if (!title) return;
+      
+      const tableName = title.textContent;
+      const data = graphData[tableName];
+      if (!data) return;
+      
+      // Highlight current node
+      this.style.opacity = '1';
+      const ellipse = this.querySelector('ellipse, polygon');
+      if (ellipse) {
+        ellipse.style.strokeWidth = '3';
+        ellipse.style.stroke = '#3182ce';
+      }
+      
+      // Highlight upstream nodes and edges
+      data.upstream.forEach(upstreamTable => {
+        highlightNode(upstreamTable, '#FF6B6B');
+        highlightEdge(upstreamTable, tableName, '#FF6B6B');
+      });
+      
+      // Highlight downstream nodes and edges
+      data.downstream.forEach(downstreamTable => {
+        highlightNode(downstreamTable, '#4ECDC4');
+        highlightEdge(tableName, downstreamTable, '#4ECDC4');
+      });
+      
+      // Dim other nodes
+      svg.querySelectorAll('g.node').forEach(n => {
+        const t = n.querySelector('title');
+        if (t && t.textContent !== tableName && 
+            !data.upstream.includes(t.textContent) && 
+            !data.downstream.includes(t.textContent)) {
+          n.style.opacity = '0.2';
+        }
+      });
+      
+      // Dim other edges
+      svg.querySelectorAll('g.edge').forEach(e => {
+        const t = e.querySelector('title');
+        if (t) {
+          const [src, tgt] = t.textContent.split('->').map(s => s.trim());
+          if (!((src === tableName && data.downstream.includes(tgt)) ||
+                (tgt === tableName && data.upstream.includes(src)))) {
+            e.style.opacity = '0.1';
+          }
+        }
+      });
+    });
+    
+    node.addEventListener('mouseleave', function(e) {
+      if (focusMode) return;
+      
+      // Reset all highlighting
+      svg.querySelectorAll('g.node').forEach(n => {
+        n.style.opacity = '1';
+        const ellipse = n.querySelector('ellipse, polygon');
+        if (ellipse) {
+          ellipse.style.strokeWidth = '1';
+          ellipse.style.stroke = 'black';
+        }
+      });
+      
+      svg.querySelectorAll('g.edge').forEach(e => {
+        e.style.opacity = '1';
+        const path = e.querySelector('path');
+        if (path) {
+          path.style.strokeWidth = '1';
+          path.style.stroke = 'gray';
+        }
+      });
+    });
+  });
+}
+
+function resetFocus() {
+  svg.querySelectorAll('g.node, g.edge').forEach(el => {
+    el.classList.remove('dimmed', 'focused');
+  });
+}
+
+function toggleFocusMode() {
+  console.log('Toggling focus mode');
+  focusMode = !focusMode;
+  const btn = document.getElementById('focusBtn');
+  if (focusMode) {
+    btn.classList.add('active');
+    btn.textContent = '🎯 Focus Mode: ON';
+    if (graph) graph.style.cursor = 'crosshair';
+  } else {
+    btn.classList.remove('active');
+    btn.textContent = '🎯 Focus Mode: OFF';
+    if (graph) graph.style.cursor = 'default';
+    resetFocus();
+  }
+}
+
+function focusNode(tableName) {
+  if (!focusMode) return;
+  
+  const data = graphData[tableName];
+  if (!data) return;
+  
+  // Reset first
+  resetFocus();
+  
+  // Identify all connected nodes (upstream + downstream + self)
+  const connected = new Set([tableName, ...data.upstream, ...data.downstream]);
+  
+  // Dim everything
+  svg.querySelectorAll('g.node').forEach(node => {
+    const title = node.querySelector('title').textContent;
+    if (connected.has(title)) {
+      node.classList.add('focused');
+    } else {
+      node.classList.add('dimmed');
+    }
+  });
+  
+  svg.querySelectorAll('g.edge').forEach(edge => {
+    const title = edge.querySelector('title');
+    if (title) {
+      const [src, tgt] = title.textContent.split('->').map(s => s.trim());
+      if (connected.has(src) && connected.has(tgt)) {
+        edge.classList.add('focused');
+      } else {
+        edge.classList.add('dimmed');
+      }
+    }
+  });
+}
+
+function exportSVG() {
+  const svgData = new XMLSerializer().serializeToString(svg);
+  const blob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'lineage_graph.svg';
+  link.click();
+}
+
+function exportPNG() {
+  const canvas = document.createElement('canvas');
+  const bbox = svg.getBBox();
+  canvas.width = bbox.width + 100;
+  canvas.height = bbox.height + 100;
+  const ctx = canvas.getContext('2d');
+  
+  // Handle Dark Mode for export
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  ctx.fillStyle = isDark ? '#2d3748' : 'white';
+  
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  const img = new Image();
+  const svgData = new XMLSerializer().serializeToString(svg);
+  const blob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  
+  img.onload = function() {
+    ctx.drawImage(img, 50, 50);
+    const pngUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = pngUrl;
+    link.download = 'lineage_graph.png';
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+  img.src = url;
+}
+
+function zoomIn() {
   scale = Math.min(scale + 0.2, 3);
-  svg.style.transform = `scale(${{scale}})`;
+  svg.style.transform = `scale(${scale})`;
   svg.style.transformOrigin = 'top left';
-}}
+}
 
-function zoomOut() {{
+function zoomOut() {
   scale = Math.max(scale - 0.2, 0.5);
-  svg.style.transform = `scale(${{scale}})`;
+  svg.style.transform = `scale(${scale})`;
   svg.style.transformOrigin = 'top left';
-}}
+}
 
-function resetZoom() {{
+function resetZoom() {
   scale = 1;
   svg.style.transform = 'scale(1)';
-}}
+}
 
-// Build graph data structure for highlighting
-const graphData = {{}};
-svg.querySelectorAll('g.edge').forEach(edge => {{
-  const title = edge.querySelector('title');
-  if (title) {{
-    const [source, target] = title.textContent.split('->').map(s => s.trim());
-    if (!graphData[source]) graphData[source] = {{ upstream: [], downstream: [] }};
-    if (!graphData[target]) graphData[target] = {{ upstream: [], downstream: [] }};
-    graphData[source].downstream.push(target);
-    graphData[target].upstream.push(source);
-  }}
-}});
-
-// Make SVG clickable tables navigate
-svg.querySelectorAll('g.node').forEach(node => {{
-  node.style.cursor = 'pointer';
-  
-  // Click to navigate
-  node.addEventListener('click', function(e) {{
-    const title = this.querySelector('title');
-    if (title) {{
-      const tableName = title.textContent;
-      const safeName = tableName.replace(/\\./g, '_');
-      const htmlPath = `${{safeName}}.html`;
-      window.location.href = htmlPath;
-    }}
-  }});
-  
-  // Hover to highlight dependencies
-  node.addEventListener('mouseenter', function(e) {{
-    const title = this.querySelector('title');
-    if (!title) return;
-    
-    const tableName = title.textContent;
-    const data = graphData[tableName];
-    if (!data) return;
-    
-    // Highlight current node
-    this.style.opacity = '1';
-    const ellipse = this.querySelector('ellipse, polygon');
-    if (ellipse) {{
-      ellipse.style.strokeWidth = '3';
-      ellipse.style.stroke = '#3182ce';
-    }}
-    
-    // Highlight upstream nodes and edges
-    data.upstream.forEach(upstreamTable => {{
-      highlightNode(upstreamTable, '#FF6B6B');
-      highlightEdge(upstreamTable, tableName, '#FF6B6B');
-    }});
-    
-    // Highlight downstream nodes and edges
-    data.downstream.forEach(downstreamTable => {{
-      highlightNode(downstreamTable, '#4ECDC4');
-      highlightEdge(tableName, downstreamTable, '#4ECDC4');
-    }});
-    
-    // Dim other nodes
-    svg.querySelectorAll('g.node').forEach(n => {{
-      const t = n.querySelector('title');
-      if (t && t.textContent !== tableName && 
-          !data.upstream.includes(t.textContent) && 
-          !data.downstream.includes(t.textContent)) {{
-        n.style.opacity = '0.2';
-      }}
-    }});
-    
-    // Dim other edges
-    svg.querySelectorAll('g.edge').forEach(e => {{
-      const t = e.querySelector('title');
-      if (t) {{
-        const [src, tgt] = t.textContent.split('->').map(s => s.trim());
-        if (!((src === tableName && data.downstream.includes(tgt)) ||
-              (tgt === tableName && data.upstream.includes(src)))) {{
-          e.style.opacity = '0.1';
-        }}
-      }}
-    }});
-  }});
-  
-  node.addEventListener('mouseleave', function(e) {{
-    // Reset all highlighting
-    svg.querySelectorAll('g.node').forEach(n => {{
-      n.style.opacity = '1';
-      const ellipse = n.querySelector('ellipse, polygon');
-      if (ellipse) {{
-        ellipse.style.strokeWidth = '1';
-        ellipse.style.stroke = 'black';
-      }}
-    }});
-    
-    svg.querySelectorAll('g.edge').forEach(e => {{
-      e.style.opacity = '1';
-      const path = e.querySelector('path');
-      if (path) {{
-        path.style.strokeWidth = '1';
-        path.style.stroke = 'gray';
-      }}
-    }});
-  }});
-}});
-
-function highlightNode(tableName, color) {{
-  svg.querySelectorAll('g.node').forEach(node => {{
+function highlightNode(tableName, color) {
+  svg.querySelectorAll('g.node').forEach(node => {
     const title = node.querySelector('title');
-    if (title && title.textContent === tableName) {{
+    if (title && title.textContent === tableName) {
       node.style.opacity = '1';
       const ellipse = node.querySelector('ellipse, polygon');
-      if (ellipse) {{
+      if (ellipse) {
         ellipse.style.strokeWidth = '2';
         ellipse.style.stroke = color;
-      }}
-    }}
-  }});
-}}
+      }
+    }
+  });
+}
 
-function highlightEdge(source, target, color) {{
-  svg.querySelectorAll('g.edge').forEach(edge => {{
+function highlightEdge(source, target, color) {
+  svg.querySelectorAll('g.edge').forEach(edge => {
     const title = edge.querySelector('title');
-    if (title) {{
+    if (title) {
       const [src, tgt] = title.textContent.split('->').map(s => s.trim());
-      if (src === source && tgt === target) {{
+      if (src === source && tgt === target) {
         edge.style.opacity = '1';
         const path = edge.querySelector('path');
-        if (path) {{
+        if (path) {
           path.style.strokeWidth = '2';
           path.style.stroke = color;
-        }}
-      }}
-    }}
-  }});
-}}
+        }
+      }
+    }
+  });
+}
 
 // Add search functionality for full lineage graph
 """
@@ -1048,55 +1297,71 @@ function highlightEdge(source, target, color) {{
         if not table_name:
             html_content += """
 // Add search functionality for full lineage graph
-const searchInput = document.createElement('input');
-searchInput.type = 'search';
-searchInput.placeholder = 'Search for table...';
-searchInput.style.cssText = `
-  position: fixed; top: 80px; right: 350px; z-index: 1001;
-  padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 6px;
-  font-family: 'Inter', sans-serif; font-size: 14px;
-  background: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  width: 250px;
-`;
-
-// Add database filter dropdown
-const dbFilter = document.createElement('select');
-dbFilter.style.cssText = `
-  position: fixed; top: 80px; right: 40px; z-index: 1001;
-  padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 6px;
-  font-family: 'Inter', sans-serif; font-size: 14px;
-  background: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  width: 280px; cursor: pointer;
-`;
-
-// Collect all databases
-const databases = new Set();
-let tableCount = 0;
-svg.querySelectorAll('g.node title').forEach(t => {
-  const tableName = t.textContent;
-  if (tableName.includes('.')) {
-    const db = tableName.split('.')[0];
-    databases.add(db);
-    tableCount++;
+document.addEventListener('DOMContentLoaded', function() {
+  // Ensure svg is available
+  if (!svg) {
+    const graph = document.getElementById('graph');
+    if (graph) svg = graph.querySelector('svg');
   }
-});
+  
+  if (!svg) return;
 
-// Add options
-const allOption = document.createElement('option');
-allOption.value = '';
-allOption.textContent = `🗂️ All Databases (${tableCount} tables)`;
-dbFilter.appendChild(allOption);
+  const searchInput = document.createElement('input');
+  searchInput.type = 'search';
+  searchInput.placeholder = 'Search for table...';
+  searchInput.style.cssText = `
+    position: fixed; top: 80px; right: 350px; z-index: 1001;
+    padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 6px;
+    font-family: 'Inter', sans-serif; font-size: 14px;
+    background: var(--bg-card); color: var(--text-main);
+    box-shadow: 0 4px 6px -1px var(--shadow-color);
+    width: 250px;
+  `;
 
-Array.from(databases).sort().forEach(db => {
-  const option = document.createElement('option');
-  option.value = db;
-  option.textContent = `📊 ${db}`;
-  dbFilter.appendChild(option);
-});
+  // Add database filter dropdown
+  const dbFilter = document.createElement('select');
+  dbFilter.style.cssText = `
+    position: fixed; top: 80px; right: 40px; z-index: 1001;
+    padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 6px;
+    font-family: 'Inter', sans-serif; font-size: 14px;
+    background: var(--bg-card); color: var(--text-main);
+    box-shadow: 0 4px 6px -1px var(--shadow-color);
+    width: 280px; cursor: pointer;
+  `;
 
-function applyFilters() {
-  const searchQuery = searchInput.value.toLowerCase();
-  const selectedDb = dbFilter.value;
+  // Collect all databases
+  const databases = new Set();
+  let tableCount = 0;
+  svg.querySelectorAll('g.node title').forEach(t => {
+    const tableName = t.textContent;
+    if (tableName.includes('.')) {
+      const db = tableName.split('.')[0];
+      databases.add(db);
+      tableCount++;
+    }
+  });
+
+  // Add options
+  const allOption = document.createElement('option');
+  allOption.value = '';
+  allOption.textContent = `🗂️ All Databases (${tableCount} tables)`;
+  dbFilter.appendChild(allOption);
+
+  Array.from(databases).sort().forEach(db => {
+    const option = document.createElement('option');
+    option.value = db;
+    option.textContent = `📊 ${db}`;
+    dbFilter.appendChild(option);
+  });
+
+  // Append controls
+  document.body.appendChild(searchInput);
+  document.body.appendChild(dbFilter);
+
+  // Filter Logic
+  function applyFilters() {
+    const searchQuery = searchInput.value.toLowerCase();
+    const selectedDb = dbFilter.value;
   
   if (!searchQuery && !selectedDb) {
     // Reset all
@@ -1159,6 +1424,7 @@ dbFilter.addEventListener('change', applyFilters);
 
 document.body.appendChild(searchInput);
 document.body.appendChild(dbFilter);
+});
 """
         
         html_content += """
