@@ -30,6 +30,7 @@ dependencies = [
     "graphviz>=0.19.1",
     "jinja2>=3.0.0",
     "cron-descriptor>=1.2.0",
+    "sqlglot>=20.0.0",
 ]
 
 [project.optional-dependencies]

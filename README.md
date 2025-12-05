@@ -35,6 +35,9 @@ That's it! You'll see an interactive dashboard with all your workflows.
 ## What You Get
 
 ### 📊 Interactive Workflow Graphs
+- **Interactive Visualization**: Pan, zoom, and explore complex workflow graphs.
+- **Data Lineage (Experimental)**: Trace table dependencies across your entire data pipeline. [Learn more](wiki/Data-Lineage.md).
+- **Search & Filter**: Instantly find tasks and filter by status or name.
 - Color-coded tasks by operator type (`td>`, `sh>`, `py>`, etc.)
 - Click any task to see details: SQL queries, parameters, schedules
 - Hover to highlight dependencies (upstream/downstream)

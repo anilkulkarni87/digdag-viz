@@ -1,0 +1,27 @@
+# Ad-hoc Analysis - Unscheduled
+# Demonstrates: unscheduled workflow, Python operator, parallel tasks
+
++prepare_data:
+  td>: queries/prepare_analysis.sql
+  database: analytics
+  create_table: staging.analysis_prep
+
++parallel_analysis:
+  _parallel: true
+  
+  +analyze_trends:
+    py>: scripts.analysis.analyze_trends
+    
+  +generate_report:
+    py>: scripts.analysis.generate_report
+    
+  +export_results:
+    sh>: scripts/export_results.sh
+
++consolidate_results:
+  td>: queries/consolidate.sql
+  database: analytics
+  create_table: golden.analysis_results
+
++notify_completion:
+  echo>: "Analysis complete - check golden.analysis_results"
